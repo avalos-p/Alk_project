@@ -1,1 +1,0 @@
-# Alk_project
