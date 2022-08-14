@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import requests
 import os
+import logging 
+
 
 import pandas as pd
 import numpy as np
@@ -8,6 +10,9 @@ from datetime import datetime
 
 from decouple import config
 from sqlalchemy import create_engine, event, Date, Integer, String
+
+logging.basicConfig(filename="info.log", level=logging.INFO,
+                    format="%(asctime)s::%(levelname)s::%(message)s")
 
 #Direcciones de archivos 
 url_museos = config('url_museos')
@@ -23,18 +28,24 @@ year=str(now.year)
 
 #  Descargo la base de datos de MUSEOS
 req_museos = requests.get(url_museos)
+logging.info("Datos de Museos descargados")
 os.makedirs('museos/'+year+'-'+str(now.strftime("%B"))+'/',exist_ok=True)
 museos = open ('museos/'+year+'-'+str(now.strftime("%B"))+'/museos-'+day+'-'+month+'-'+year+'.csv','wb').write(req_museos.content)
+logging.info("Archivos creados")
 
-#  Descargo la base de datos de SALAS DE CINE
+# Descargo la base de datos de SALAS DE CINE
 req_cines = requests.get(url_cines)
+logging.info("Datos de Salas de Cine descargados")
 os.makedirs('cines/'+year+'-'+str(now.strftime("%B"))+'/',exist_ok=True)
 cines = open ('cines/'+year+'-'+str(now.strftime("%B"))+'/cines-'+day+'-'+month+'-'+year+'.csv','wb').write(req_cines.content)
+logging.info("Archivos creados")
 
-#  Descargo la base de datos de BIBLIOTECAS
+# Descargo la base de datos de BIBLIOTECAS
 req_bibliotecas = requests.get(url_bibliotecas)
+logging.info("Datos de Bibliotecas descargados")
 os.makedirs('bibliotecas/'+year+'-'+str(now.strftime("%B"))+'/',exist_ok=True)
 bibliotecas = open ('bibliotecas/'+year+'-'+str(now.strftime("%B"))+'/bibliotecas-'+day+'-'+month+'-'+year+'.csv','wb').write(req_bibliotecas.content)
+logging.info("Archivos creados")
 
 
 ##   Normalización datos de Museo  ##
@@ -54,6 +65,8 @@ df_museos= df_museos.rename(columns = {'Cod_Loc':'cod_localidad','IdProvincia':'
                                       ,'año_inauguracion':'remove10','actualizacion':'remove11'})
 for i in range(1,12):
     df_museos = df_museos.drop(columns={"remove"+str(i)})
+
+logging.info("Normalización Museos")
 
 
 
@@ -76,6 +89,9 @@ df_cines = df_cines.rename(columns = {'Cod_Loc':'cod_localidad','IdProvincia':'i
                                       ,'espacio_INCAA':'espacio incaa','año_actualizacion':'remove10'})
 for i in range(1,11):
     df_cines = df_cines.drop(columns={"remove"+str(i)})
+
+
+logging.info("Normalización Salas de Cines")
 
 
 
@@ -101,11 +117,13 @@ df_bibliotecas = df_bibliotecas.rename(columns = {'Cod_Loc':'cod_localidad','IdP
 for i in range(1,13):
     df_bibliotecas = df_bibliotecas.drop(columns={"remove"+str(i)})
 
+logging.info("Normalización Bibliotecas")
 
 
 
 
-# Creo la tabla normalizada con datos de Museos, Cines y Bibliotecas
+
+## Creo la tabla normalizada con datos de Museos, Cines y Bibliotecas ##
 principal_mcb=pd.DataFrame(columns=["cod_localidad", "id_provincia", "id_departamento"
                       , "categoría", "provincia", "localidad", "nombre"
                       , "domicilio", "código postal", "número de teléfono"
@@ -119,18 +137,21 @@ principal_mcb["provincia"]=principal_mcb["provincia"].replace(["Tierra del Fuego
 principal_mcb["provincia"]=principal_mcb["provincia"].replace(["Neuquén\xa0"], "Neuquén")
 
 principal_mcb.to_csv("principal_mcb.csv",encoding='UTF-8')
+logging.info("Tabla principal con datos de Museos, Salas de Cine y Bibliotecas Creadas")
 
 
-# Creo la tabla de fuentes
+## Creo la tabla de fuentes ##
 tabla_fuente=principal_mcb["fuente"].value_counts().rename_axis("fuente").reset_index(name='registros por fuente')
 tabla_fuente.to_csv("registros_por_fuente.csv",encoding='UTF-8')
+logging.info("Tabla de registros por Fuente Creada")
 
 
-# Creo Tabla registros por provincia y categoría
+## Creo Tabla registros por provincia y categoría ##
 tabla_prov_cat=principal_mcb.pivot_table(values="nombre", index="provincia", columns="categoría",
                                          aggfunc="count", margins=True,
                                          margins_name="Registros totales por provincia")
 tabla_prov_cat.to_csv("registros_prov_categoria.csv",encoding='UTF-8')
+logging.info("Tabla de registros por Provincia y Categoría Creada")
 
 
 # Creo la tabla de información de cines provincia, pantallas, butacas y espacios INCAA
@@ -141,13 +162,15 @@ df_cines["espacio incaa"]=df_cines["espacio incaa"].astype("int")
 prov_info_cines=df_cines.groupby('provincia').sum()
 prov_info_cines=prov_info_cines.drop(columns={"cod_localidad","id_provincia","id_departamento","código postal"})
 prov_info_cines.to_csv("datos_cines_provincias.csv", encoding='UTF-8')
+logging.info("Tabla de datos de Cines Creada")
 
 
 
 ## POSTGRESQL ##
 db = create_engine('postgresql+psycopg2://'+config("MYSQL_USER")+':'+config("MYSQL_PWD")+'@'+config("MYSQL_HOST")+'/'+config("MYSQL_DBNAME"))
+logging.info("Base de datos Creada")
 
-
+## Importo los archivos ##
 PRINCIPAL_MCB=pd.read_csv("principal_mcb.csv")
 REGISTROS_FUENTE=pd.read_csv("registros_por_fuente.csv")
 REGISTROS_PROV_CAT=pd.read_csv("registros_prov_categoria.csv")
@@ -158,3 +181,4 @@ PRINCIPAL_MCB.to_sql('museos_cines_bibliotacas', con=db, if_exists='replace')
 REGISTROS_FUENTE.to_sql('registros_fuentes', con=db, if_exists='replace')
 REGISTROS_PROV_CAT.to_sql('registros_prov_cat', con=db, if_exists='replace')
 CINES_PROV.to_sql('cines_provincias', con=db, if_exists='replace')
+logging.info("Archivos agregados a la Base de Datos")
