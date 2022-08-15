@@ -1,15 +1,15 @@
-2022-08-13 23:08:40,021::INFO::Datos de Museos descargados
-2022-08-13 23:08:40,026::INFO::Archivos creados
-2022-08-13 23:08:41,727::INFO::Datos de Salas de Cine descargados
-2022-08-13 23:08:41,728::INFO::Archivos creados
-2022-08-13 23:08:43,872::INFO::Datos de Bibliotecas descargados
-2022-08-13 23:08:43,877::INFO::Archivos creados
-2022-08-13 23:08:43,921::INFO::Normalización Museos
-2022-08-13 23:08:43,936::INFO::Normalización Salas de Cines
-2022-08-13 23:08:43,967::INFO::Normalización Bibliotecas
-2022-08-13 23:08:44,033::INFO::Tabla principal con datos de Museos, Salas de Cine y Bibliotecas Creadas
-2022-08-13 23:08:44,041::INFO::Tabla de registros por Fuente Creada
-2022-08-13 23:08:44,097::INFO::Tabla de registros por Provincia y Categoría Creada
-2022-08-13 23:08:44,105::INFO::Tabla de datos de Cines Creada
-2022-08-13 23:08:44,191::INFO::Base de datos Creada
-2022-08-13 23:08:45,027::INFO::Archivos agregados a la Base de Datos
+2022-08-15 02:10:33,064::INFO::Datos de Museos descargados
+2022-08-15 02:10:33,068::INFO::Archivos creados
+2022-08-15 02:10:34,836::INFO::Datos de Salas de Cine descargados
+2022-08-15 02:10:34,840::INFO::Archivos creados
+2022-08-15 02:10:37,040::INFO::Datos de Bibliotecas descargados
+2022-08-15 02:10:37,045::INFO::Archivos creados
+2022-08-15 02:10:37,071::INFO::Normalización Museos
+2022-08-15 02:10:37,086::INFO::Normalización Salas de Cines
+2022-08-15 02:10:37,116::INFO::Normalización Bibliotecas
+2022-08-15 02:10:37,182::INFO::Tabla principal con datos de Museos, Salas de Cine y Bibliotecas Creadas
+2022-08-15 02:10:37,186::INFO::Tabla de registros por Fuente Creada
+2022-08-15 02:10:37,225::INFO::Tabla de registros por Provincia y Categoría Creada
+2022-08-15 02:10:37,233::INFO::Tabla de datos de Cines Creada
+2022-08-15 02:10:37,268::INFO::Base de datos Creada
+2022-08-15 02:10:37,975::INFO::Archivos agregados a la Base de Datos

@@ -130,26 +130,31 @@ principal_mcb=pd.DataFrame(columns=["cod_localidad", "id_provincia", "id_departa
                       , "mail", "web"])
 
 principal_mcb=principal_mcb.append([df_museos, df_cines, df_bibliotecas], ignore_index=True)
-principal_mcb.drop(columns={"fuente","pantallas","butacas","espacio incaa"})
+principal_mcb_fuente = principal_mcb
+principal_mcb=principal_mcb.drop(columns={"fuente","pantallas","butacas","espacio incaa"})
+principal_mcb['fecha de actualización'] = pd.Timestamp.now()
 
 principal_mcb["provincia"]=principal_mcb["provincia"].replace(["Santa Fe"], "Santa Fé")
 principal_mcb["provincia"]=principal_mcb["provincia"].replace(["Tierra del Fuego"], "Tierra del Fuego, Antártida e Islas del Atlántico Sur")
 principal_mcb["provincia"]=principal_mcb["provincia"].replace(["Neuquén\xa0"], "Neuquén")
+
+
 
 principal_mcb.to_csv("principal_mcb.csv",encoding='UTF-8')
 logging.info("Tabla principal con datos de Museos, Salas de Cine y Bibliotecas Creadas")
 
 
 ## Creo la tabla de fuentes ##
-tabla_fuente=principal_mcb["fuente"].value_counts().rename_axis("fuente").reset_index(name='registros por fuente')
+tabla_fuente=principal_mcb_fuente["fuente"].value_counts().rename_axis("fuente").reset_index(name='registros por fuente')
+tabla_fuente['fecha de actualización'] = pd.Timestamp.now()
 tabla_fuente.to_csv("registros_por_fuente.csv",encoding='UTF-8')
 logging.info("Tabla de registros por Fuente Creada")
 
 
 ## Creo Tabla registros por provincia y categoría ##
-tabla_prov_cat=principal_mcb.pivot_table(values="nombre", index="provincia", columns="categoría",
-                                         aggfunc="count", margins=True,
-                                         margins_name="Registros totales por provincia")
+tabla_prov_cat=principal_mcb.pivot_table(values="nombre", index="provincia", columns="categoría",aggfunc="count", margins=True,margins_name="Registros totales por provincia")
+                                         
+tabla_prov_cat['fecha de actualización'] = pd.Timestamp.now()
 tabla_prov_cat.to_csv("registros_prov_categoria.csv",encoding='UTF-8')
 logging.info("Tabla de registros por Provincia y Categoría Creada")
 
@@ -161,6 +166,7 @@ df_cines["espacio incaa"]=df_cines["espacio incaa"].astype("int")
 
 prov_info_cines=df_cines.groupby('provincia').sum()
 prov_info_cines=prov_info_cines.drop(columns={"cod_localidad","id_provincia","id_departamento","código postal"})
+prov_info_cines['fecha de actualización'] = pd.Timestamp.now()
 prov_info_cines.to_csv("datos_cines_provincias.csv", encoding='UTF-8')
 logging.info("Tabla de datos de Cines Creada")
 
